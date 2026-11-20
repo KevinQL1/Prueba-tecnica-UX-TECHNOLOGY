@@ -5,6 +5,7 @@ node_modules/
 # Archivos generados durante la compilación.
 dist/
 coverage/
+*.tsbuildinfo
 
 # Variables de entorno y secretos.
 .env

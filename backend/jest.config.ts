@@ -1,15 +1,5 @@
 
 import type { Config } from 'jest';
-import { pathsToModuleNameMapper } from 'ts-jest';
-import ts from 'typescript';
-
-// Lee los alias definidos en tsconfig.json.
-const { config: tsconfig } = ts.readConfigFile(
-  './tsconfig.json',
-  ts.sys.readFile,
-);
-const paths = tsconfig?.compilerOptions?.paths ?? {};
-
 const config: Config = {
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: '.',
@@ -21,9 +11,9 @@ const config: Config = {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
 
-  moduleNameMapper: pathsToModuleNameMapper(paths, {
-    prefix: '<rootDir>/',
-  }),
+  moduleNameMapper: {
+    '^#src/(.*)$': '<rootDir>/src/$1',
+  },
 
   // Mide el código fuente del backend.
   collectCoverageFrom: [

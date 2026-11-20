@@ -5,6 +5,12 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "imports": {
+    "#src/*": {
+      "types": "./src/*.ts",
+      "default": "./dist/*.js"
+    }
+  },
   "scripts": {
     "build": "nest build",
     "deploy": "nest deploy",

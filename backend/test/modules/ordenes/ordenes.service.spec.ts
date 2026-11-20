@@ -4,11 +4,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { OrdenesService } from '../../../src/modules/ordenes/ordenes.service';
-import { OrdenServicio } from '../../../src/modules/ordenes/entities/orden-servicio.entity';
-import { CrearOrdenDto } from '../../../src/modules/ordenes/dto/crear-orden.dto';
-import { ActualizarOrdenDto } from '../../../src/modules/ordenes/dto/actualizar-orden.dto';
-import { ConsultarOrdenesDto } from '../../../src/modules/ordenes/dto/consultar-ordenes.dto';
+import { OrdenesService } from '#src/modules/ordenes/ordenes.service';
+import { OrdenServicio } from '#src/modules/ordenes/entities/orden-servicio.entity';
+import { CrearOrdenDto } from '#src/modules/ordenes/dto/crear-orden.dto';
+import { ActualizarOrdenDto } from '#src/modules/ordenes/dto/actualizar-orden.dto';
+import { ConsultarOrdenesDto } from '#src/modules/ordenes/dto/consultar-ordenes.dto';
 
 describe('OrdenesService', () => {
   let servicio: OrdenesService;

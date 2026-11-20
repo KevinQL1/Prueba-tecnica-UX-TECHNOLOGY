@@ -1,4 +1,4 @@
-import type { EstadoOrden, OrdenServicio } from './orden-servicio.interface'
+import type { EstadoOrden, OrdenServicio } from '@/interfaces/orden-servicio.interface'
 
 /**
  * Parámetros disponibles para consultar órdenes de servicio.

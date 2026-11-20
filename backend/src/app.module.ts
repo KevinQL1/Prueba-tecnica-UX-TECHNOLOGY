@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { OrdenesModule } from './modules/ordenes/ordenes.module';
+import { AppController } from '#src/app.controller';
+import { AppService } from '#src/app.service';
+import { OrdenesModule } from '#src/modules/ordenes/ordenes.module';
 
 // Registra los componentes principales de la aplicación.
 @Module({

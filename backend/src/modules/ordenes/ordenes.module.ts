@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OrdenServicio } from './entities/orden-servicio.entity';
-import { OrdenesController } from './ordenes.controller';
-import { OrdenesService } from './ordenes.service';
+import { OrdenServicio } from '#src/modules/ordenes/entities/orden-servicio.entity';
+import { OrdenesController } from '#src/modules/ordenes/ordenes.controller';
+import { OrdenesService } from '#src/modules/ordenes/ordenes.service';
 
 // Registra el controlador y el servicio del módulo de órdenes.
 @Module({

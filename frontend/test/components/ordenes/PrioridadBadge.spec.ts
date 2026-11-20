@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
-import PrioridadBadge from '../../../src/components/ordenes/PrioridadBadge.vue'
+import PrioridadBadge from '@/components/ordenes/PrioridadBadge.vue'
 
 describe('PrioridadBadge', () => {
   it.each([

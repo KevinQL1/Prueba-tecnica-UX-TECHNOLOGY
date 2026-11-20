@@ -3,7 +3,7 @@ import {
   formatearMoneda,
   formatearPorcentaje,
   formatearFecha,
-} from '../../src/utils/formato'
+} from '@/utils/formato'
 
 describe('formatearMoneda', () => {
   it('formatea un valor numérico como moneda colombiana', () => {

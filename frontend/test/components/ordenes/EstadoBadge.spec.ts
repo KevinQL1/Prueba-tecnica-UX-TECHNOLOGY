@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
-import EstadoBadge from '../../../src/components/ordenes/EstadoBadge.vue'
+import EstadoBadge from '@/components/ordenes/EstadoBadge.vue'
 
 describe('EstadoBadge', () => {
   it.each([

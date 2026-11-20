@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
-import OrdenForm from '../../../src/components/ordenes/OrdenForm.vue'
-import type { OrdenServicio } from '../../../src/interfaces/orden-servicio.interface'
+import OrdenForm from '@/components/ordenes/OrdenForm.vue'
+import type { OrdenServicio } from '@/interfaces/orden-servicio.interface'
 
 // Datos válidos utilizados como base para las pruebas.
 const ordenEjemplo: OrdenServicio = {

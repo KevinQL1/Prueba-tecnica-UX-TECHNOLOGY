@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
-import { OrdenesController } from '../src/modules/ordenes/ordenes.controller';
-import { OrdenesService } from '../src/modules/ordenes/ordenes.service';
+import { OrdenesController } from '#src/modules/ordenes/ordenes.controller';
+import { OrdenesService } from '#src/modules/ordenes/ordenes.service';
 
 // Agrupa las pruebas de integración de los endpoints de órdenes.
 describe('OrdenesController (e2e)', () => {

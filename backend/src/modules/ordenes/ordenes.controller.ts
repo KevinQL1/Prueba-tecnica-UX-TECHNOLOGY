@@ -16,10 +16,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CrearOrdenDto } from './dto/crear-orden.dto';
-import { ActualizarOrdenDto } from './dto/actualizar-orden.dto';
-import { ConsultarOrdenesDto } from './dto/consultar-ordenes.dto';
-import { OrdenesService } from './ordenes.service';
+import { CrearOrdenDto } from '#src/modules/ordenes/dto/crear-orden.dto';
+import { ActualizarOrdenDto } from '#src/modules/ordenes/dto/actualizar-orden.dto';
+import { ConsultarOrdenesDto } from '#src/modules/ordenes/dto/consultar-ordenes.dto';
+import { OrdenesService } from '#src/modules/ordenes/ordenes.service';
 
 // Agrupa la documentación de los endpoints de órdenes en Swagger.
 @ApiTags('Órdenes')

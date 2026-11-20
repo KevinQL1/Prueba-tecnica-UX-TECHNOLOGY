@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
-import AppHeader from '../../../src/components/layout/AppHeader.vue'
+import AppHeader from '@/components/layout/AppHeader.vue'
 
 describe('AppHeader', () => {
   it('renderiza el título principal del sistema', () => {

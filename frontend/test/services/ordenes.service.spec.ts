@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ordenesService } from '../../src/services/ordenes.service'
-import type { OrdenServicio } from '../../src/interfaces/orden-servicio.interface'
+import { ordenesService } from '@/services/ordenes.service'
+import type { OrdenServicio } from '@/interfaces/orden-servicio.interface'
 
 // Simula los métodos HTTP de Axios.
 const apiMock = vi.hoisted(() => ({
@@ -10,7 +10,7 @@ const apiMock = vi.hoisted(() => ({
   delete: vi.fn(),
 }))
 
-vi.mock('../../src/services/api', () => ({
+vi.mock('@/services/api', () => ({
   default: apiMock,
 }))
 

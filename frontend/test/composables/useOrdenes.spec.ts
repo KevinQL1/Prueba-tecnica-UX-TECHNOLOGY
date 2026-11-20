@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { useOrdenes } from '../../src/composables/useOrdenes'
-import type { OrdenServicio } from '../../src/interfaces/orden-servicio.interface'
+import { useOrdenes } from '@/composables/useOrdenes'
+import type { OrdenServicio } from '@/interfaces/orden-servicio.interface'
 
 // Simula el servicio para evitar peticiones reales al backend.
 const { obtenerTodasMock } = vi.hoisted(() => ({
   obtenerTodasMock: vi.fn(),
 }))
 
-vi.mock('../../src/services/ordenes.service', () => ({
+vi.mock('@/services/ordenes.service', () => ({
   ordenesService: {
     obtenerTodas: obtenerTodasMock,
   },

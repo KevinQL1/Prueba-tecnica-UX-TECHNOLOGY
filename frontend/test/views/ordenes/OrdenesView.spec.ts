@@ -1,16 +1,16 @@
 import { mount, flushPromises } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, ref } from 'vue'
-import OrdenesView from '../../../src/views/ordenes/OrdenesView.vue'
-import { useOrdenes } from '../../../src/composables/useOrdenes'
-import { ordenesService } from '../../../src/services/ordenes.service'
-import type { OrdenServicio } from '../../../src/interfaces/orden-servicio.interface'
+import OrdenesView from '@/views/ordenes/OrdenesView.vue'
+import { useOrdenes } from '@/composables/useOrdenes'
+import { ordenesService } from '@/services/ordenes.service'
+import type { OrdenServicio } from '@/interfaces/orden-servicio.interface'
 
-vi.mock('../../../src/composables/useOrdenes', () => ({
+vi.mock('@/composables/useOrdenes', () => ({
   useOrdenes: vi.fn(),
 }))
 
-vi.mock('../../../src/services/ordenes.service', () => ({
+vi.mock('@/services/ordenes.service', () => ({
   ordenesService: {
     crear: vi.fn(),
     actualizar: vi.fn(),

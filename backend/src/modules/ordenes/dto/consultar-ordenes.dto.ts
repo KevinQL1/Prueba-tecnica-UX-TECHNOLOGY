@@ -10,7 +10,7 @@ import {
   Min,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { ESTADOS_ORDEN } from './crear-orden.dto';
+import { ESTADOS_ORDEN } from '#src/modules/ordenes/dto/crear-orden.dto';
 
 // Define los parámetros permitidos para consultar y filtrar órdenes.
 export class ConsultarOrdenesDto {

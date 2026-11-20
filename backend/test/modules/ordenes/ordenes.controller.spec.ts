@@ -1,6 +1,6 @@
 
-import { OrdenesController } from '../../../src/modules/ordenes/ordenes.controller';
-import { OrdenesService } from '../../../src/modules/ordenes/ordenes.service';
+import { OrdenesController } from '#src/modules/ordenes/ordenes.controller';
+import { OrdenesService } from '#src/modules/ordenes/ordenes.service';
 
 // Agrupa las pruebas unitarias del controlador de órdenes.
 describe('OrdenesController', () => {

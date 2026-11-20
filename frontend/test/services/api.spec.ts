@@ -9,7 +9,7 @@ vi.mock('axios', () => ({
   },
 }))
 
-import api from '../../src/services/api'
+import api from '@/services/api'
 
 describe('Configuración de Axios', () => {
   it('crea una instancia con la URL del entorno', () => {

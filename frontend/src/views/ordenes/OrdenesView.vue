@@ -8,9 +8,13 @@ const {
   ordenes,
   cargando,
   error,
+  filtros,
   paginacion,
   cargarOrdenes,
+  aplicarFiltros,
+  limpiarFiltros,
 } = useOrdenes()
+
 
 // Calcula la cantidad de órdenes que se encuentran en cada estado.
 const totalPendientes = computed(
@@ -95,6 +99,73 @@ onMounted(() => {
           <p class="mt-1 text-sm text-slate-500">
             Órdenes registradas en el sistema.
           </p>
+        </div>
+
+        <!-- Controles de búsqueda y filtrado de órdenes. -->
+        <div class="border-b border-slate-200 bg-slate-50/50 p-5">
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+          
+            <!-- Búsqueda por nombre del cliente. -->
+            <div class="md:col-span-2">
+              <label
+                for="buscar-cliente"
+                class="mb-2 block text-sm font-medium text-slate-700"
+              >
+                Buscar por cliente
+              </label>
+            
+              <input
+                id="buscar-cliente"
+                v-model="filtros.cliente_nombre"
+                type="text"
+                placeholder="Escribe el nombre del cliente..."
+                class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                @keyup.enter="aplicarFiltros"
+              />
+            </div>
+          
+            <!-- Filtro por estado de la orden. -->
+            <div>
+              <label
+                for="filtrar-estado"
+                class="mb-2 block text-sm font-medium text-slate-700"
+              >
+                Estado de la orden
+              </label>
+            
+              <select
+                id="filtrar-estado"
+                v-model="filtros.estado"
+                class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              >
+                <option :value="undefined">Todos los estados</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="En Proceso">En Proceso</option>
+                <option value="Completada">Completada</option>
+                <option value="Cancelada">Cancelada</option>
+              </select>
+            </div>
+          </div>
+        
+          <!-- Acciones de búsqueda y limpieza. -->
+          <div class="mt-4 flex flex-wrap justify-end gap-3">
+            <button
+              type="button"
+              class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+              @click="limpiarFiltros"
+            >
+              Limpiar filtros
+            </button>
+          
+            <button
+              type="button"
+              :disabled="cargando"
+              class="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              @click="aplicarFiltros"
+            >
+              Buscar órdenes
+            </button>
+          </div>
         </div>
 
         <div v-if="cargando" class="p-10 text-center text-sm text-slate-500">

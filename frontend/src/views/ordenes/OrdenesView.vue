@@ -2,6 +2,8 @@
 import { computed, onMounted } from 'vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import { useOrdenes } from '@/composables/useOrdenes'
+import EstadoBadge from '@/components/ordenes/EstadoBadge.vue'
+import PrioridadBadge from '@/components/ordenes/PrioridadBadge.vue'
 
 // Inicializa la lógica de consulta de órdenes.
 const {
@@ -238,11 +240,11 @@ async function actualizarLimite(event: Event): Promise<void> {
                 <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
                   {{ orden.cliente_nombre }}
                 </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
-                  {{ orden.estado }}
+                <td class="whitespace-nowrap px-6 py-4">
+                  <EstadoBadge :estado="orden.estado" />
                 </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
-                  {{ orden.prioridad }}
+                <td class="whitespace-nowrap px-6 py-4">
+                  <PrioridadBadge :prioridad="orden.prioridad" />
                 </td>
                 <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
                   {{ orden.valor_total }}

@@ -1,16 +1,18 @@
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 
 import type {
   CrearOrdenDto,
   EstadoOrden,
   PrioridadOrden,
+  OrdenServicio,
 } from '@/interfaces/orden-servicio.interface'
 
 // Define las propiedades y eventos del formulario.
-defineProps<{
+const props = defineProps<{
   cargando?: boolean
+  orden?: OrdenServicio | null
 }>()
 
 const emit = defineEmits<{
@@ -43,6 +45,45 @@ const formulario = reactive<CrearOrdenDto>({
 
 // Almacena los mensajes de validación de cada campo.
 const errores = ref<Record<string, string>>({})
+
+// Carga los datos de la orden seleccionada o reinicia el formulario.
+function cargarDatosOrden(orden: OrdenServicio | null | undefined): void {
+  errores.value = {}
+
+  if (!orden) {
+    Object.assign(formulario, {
+      codigo_orden: '',
+      cliente_nombre: '',
+      cantidad_items: 1,
+      valor_total: 0,
+      porcentaje_descuento: 0,
+      fecha_solicitud: obtenerFechaActual(),
+      estado: 'Pendiente',
+      prioridad: 'Media',
+      observaciones: '',
+    })
+    return
+  }
+
+  Object.assign(formulario, {
+    codigo_orden: orden.codigo_orden,
+    cliente_nombre: orden.cliente_nombre,
+    cantidad_items: Number(orden.cantidad_items),
+    valor_total: Number(orden.valor_total),
+    porcentaje_descuento: Number(orden.porcentaje_descuento),
+    fecha_solicitud: String(orden.fecha_solicitud).slice(0, 10),
+    estado: orden.estado,
+    prioridad: orden.prioridad,
+    observaciones: orden.observaciones ?? '',
+  })
+}
+
+// Actualiza el formulario cuando cambia la orden seleccionada.
+watch(
+  () => props.orden,
+  (orden) => cargarDatosOrden(orden),
+  { immediate: true },
+)
 
 // Opciones permitidas para los estados y prioridades.
 const estados: EstadoOrden[] = [
@@ -307,7 +348,7 @@ function enviarFormulario(): void {
         :disabled="cargando"
         class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {{ cargando ? 'Guardando...' : 'Crear orden' }}
+        {{ cargando ? 'Guardando...' : props.orden ? 'Guardar cambios' : 'Crear orden' }}
       </button>
     </div>
   </form>

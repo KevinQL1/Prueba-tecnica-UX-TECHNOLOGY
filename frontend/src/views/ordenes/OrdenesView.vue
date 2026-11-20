@@ -7,7 +7,7 @@ import PrioridadBadge from '@/components/ordenes/PrioridadBadge.vue'
 import { ref } from 'vue'
 import OrdenForm from '@/components/ordenes/OrdenForm.vue'
 import { ordenesService } from '@/services/ordenes.service'
-import type { CrearOrdenDto } from '@/interfaces/orden-servicio.interface'
+import type { CrearOrdenDto, OrdenServicio } from '@/interfaces/orden-servicio.interface'
 
 // Inicializa la lógica de consulta de órdenes.
 const {
@@ -45,6 +45,12 @@ const guardandoOrden = ref(false)
 
 // Almacena los mensajes de resultado de la operación.
 const mensajeExito = ref('')
+
+// Almacena la orden seleccionada para editar.
+const ordenSeleccionada = ref<OrdenServicio | null>(null)
+
+// Controla si el formulario está en modo edición.
+const editandoOrden = ref(false)
 
 // Consulta los registros cuando se carga la pantalla.
 onMounted(() => {
@@ -91,6 +97,60 @@ const crearOrden = async (datos: CrearOrdenDto) => {
     guardandoOrden.value = false
   }
 }
+
+// Abre el formulario con los datos de la orden seleccionada.
+function abrirEdicion(orden: OrdenServicio): void {
+  ordenSeleccionada.value = orden
+  editandoOrden.value = true
+  mensajeExito.value = ''
+  mostrarFormulario.value = true
+}
+
+// Actualiza una orden y refresca el listado.
+const actualizarOrden = async (datos: CrearOrdenDto) => {
+  if (!ordenSeleccionada.value) return
+
+  guardandoOrden.value = true
+
+  try {
+    await ordenesService.actualizar(ordenSeleccionada.value.id, datos)
+
+    mostrarFormulario.value = false
+    ordenSeleccionada.value = null
+    editandoOrden.value = false
+
+    await cargarOrdenes()
+
+    mensajeExito.value = 'La orden se actualizó correctamente.'
+  } catch (error: unknown) {
+    let mensaje = 'No fue posible actualizar la orden.'
+
+    if (error instanceof Error && 'response' in error) {
+      const respuesta = error.response as {
+        data?: { message?: string | string[] }
+      }
+
+      const mensajeRespuesta = respuesta.data?.message
+
+      mensaje = Array.isArray(mensajeRespuesta)
+        ? mensajeRespuesta.join(', ')
+        : mensajeRespuesta || mensaje
+    }
+
+    window.alert(mensaje)
+  } finally {
+    guardandoOrden.value = false
+  }
+}
+
+// Cierra el formulario y limpia la orden seleccionada.
+function cerrarFormulario(): void {
+  if (guardandoOrden.value) return
+
+  mostrarFormulario.value = false
+  ordenSeleccionada.value = null
+  editandoOrden.value = false
+}
 </script>
 
 <template>
@@ -115,7 +175,7 @@ const crearOrden = async (datos: CrearOrdenDto) => {
         <button
           type="button"
           class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
-          @click="mostrarFormulario = true"
+          @click="cerrarFormulario(); mostrarFormulario = true"
         >
           <span class="text-lg">+</span>
           Nueva orden
@@ -286,6 +346,9 @@ const crearOrden = async (datos: CrearOrdenDto) => {
                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">
                   Valor total
                 </th>
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">
+                  Acciones
+                </th>
               </tr>
             </thead>
 
@@ -309,6 +372,15 @@ const crearOrden = async (datos: CrearOrdenDto) => {
                 </td>
                 <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
                   {{ orden.valor_total }}
+                </td>
+                <td class="whitespace-nowrap px-6 py-4">
+                  <button
+                    type="button"
+                    class="rounded-lg border border-blue-200 px-3 py-2 text-sm font-medium text-blue-700 transition hover:bg-blue-50"
+                    @click="abrirEdicion(orden)"
+                  >
+                    Editar
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -392,7 +464,11 @@ const crearOrden = async (datos: CrearOrdenDto) => {
                 id="titulo-formulario"
                 class="text-xl font-bold text-slate-900"
               >
-                Nueva orden de servicio
+                {{
+                  editandoOrden
+                    ? 'Actualiza la información de la orden seleccionada.'
+                    : 'Completa la información para registrar una nueva orden.'
+                }}
               </h3>
             
               <p class="mt-1 text-sm text-slate-500">
@@ -413,9 +489,11 @@ const crearOrden = async (datos: CrearOrdenDto) => {
         
           <div class="max-h-[75vh] overflow-y-auto p-6">
             <OrdenForm
+              :key="ordenSeleccionada?.id ?? 'nueva'"
               :cargando="guardandoOrden"
-              @submit="crearOrden"
-              @cancel="mostrarFormulario = false"
+              :orden="ordenSeleccionada"
+              @submit="editandoOrden ? actualizarOrden($event) : crearOrden($event)"
+              @cancel="cerrarFormulario"
             />
           </div>
         </section>

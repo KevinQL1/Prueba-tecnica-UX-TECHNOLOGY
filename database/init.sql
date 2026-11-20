@@ -1,4 +1,7 @@
 
+-- Configura la conexión para soportar correctamente caracteres especiales.
+SET NAMES utf8mb4;
+
 -- Crea la base de datos utilizando caracteres compatibles con español.
 CREATE DATABASE IF NOT EXISTS ux_prueba_tecnica
 CHARACTER SET utf8mb4
@@ -78,7 +81,9 @@ CREATE TABLE IF NOT EXISTS ordenes_servicio (
             'Alta',
             'Crítica'
         ))
-) ENGINE=InnoDB;
+) ENGINE=InnoDB
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
 
 -- Inserta los dos registros de ejemplo de la prueba técnica.
 INSERT INTO ordenes_servicio (

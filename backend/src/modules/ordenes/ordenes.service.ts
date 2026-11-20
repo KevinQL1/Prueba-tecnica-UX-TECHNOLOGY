@@ -1,5 +1,5 @@
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConsultarOrdenesDto } from './dto/consultar-ordenes.dto';
@@ -56,5 +56,24 @@ export class OrdenesService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+    // Consulta una orden por su ID y verifica que esté activa.
+  async consultarPorId(id: number) {
+    // Busca la orden por su identificador y estado activo.
+    const orden = await this.ordenesRepository.findOne({
+      where: {
+        id,
+        activo: true,
+      },
+    });
+
+    // Retorna un error 404 cuando la orden no existe o está eliminada.
+    if (!orden) {
+      throw new NotFoundException(`No se encontró la orden con ID ${id}.`);
+    }
+
+    // Retorna la orden encontrada.
+    return orden;
   }
 }

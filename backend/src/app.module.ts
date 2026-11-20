@@ -1,4 +1,3 @@
-
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -25,6 +24,9 @@ import { OrdenesModule } from './modules/ordenes/ordenes.module';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_ROOT_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
+
+        // Define la codificación para soportar caracteres especiales.
+        charset: 'utf8mb4',
 
         // Sincronizaremos las entidades manualmente mediante SQL.
         synchronize: false,

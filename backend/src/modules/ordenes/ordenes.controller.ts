@@ -1,6 +1,18 @@
 
-import { Controller, Get, Query } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
+import {
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ConsultarOrdenesDto } from './dto/consultar-ordenes.dto';
 import { OrdenesService } from './ordenes.service';
 
@@ -8,7 +20,7 @@ import { OrdenesService } from './ordenes.service';
 @ApiTags('Órdenes')
 @Controller('ordenes')
 export class OrdenesController {
-    // Inyecta el servicio encargado de ejecutar la lógica de las órdenes.
+  // Inyecta el servicio encargado de ejecutar la lógica de las órdenes.
   constructor(private readonly ordenesService: OrdenesService) {}
 
   // Consulta las órdenes aplicando los filtros y la paginación recibidos.
@@ -21,5 +33,15 @@ export class OrdenesController {
   @ApiResponse({ status: 200, description: 'Órdenes consultadas correctamente.' })
   consultarTodas(@Query() filtros: ConsultarOrdenesDto) {
     return this.ordenesService.consultarTodas(filtros);
+  }
+
+  // Consulta una orden específica mediante su identificador.
+  @Get(':id')
+  @ApiOperation({ summary: 'Consultar una orden por ID' })
+  @ApiParam({ name: 'id', type: Number, example: 1 })
+  @ApiResponse({ status: 200, description: 'Orden consultada correctamente.' })
+  @ApiResponse({ status: 404, description: 'Orden no encontrada.' })
+  consultarPorId(@Param('id', ParseIntPipe) id: number) {
+    return this.ordenesService.consultarPorId(id);
   }
 }

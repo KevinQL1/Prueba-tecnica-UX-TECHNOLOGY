@@ -8,6 +8,11 @@ import { ref } from 'vue'
 import OrdenForm from '@/components/ordenes/OrdenForm.vue'
 import { ordenesService } from '@/services/ordenes.service'
 import type { CrearOrdenDto, OrdenServicio } from '@/interfaces/orden-servicio.interface'
+import {
+  formatearMoneda,
+  formatearPorcentaje,
+  formatearFecha,
+} from '@/utils/formato'
 
 // Inicializa la lógica de consulta de órdenes.
 const {
@@ -379,6 +384,12 @@ async function eliminarOrden(orden: OrdenServicio): Promise<void> {
                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">
                   Valor total
                 </th>
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">
+                  Descuento
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">
+                  Fecha solicitud
+                </th>
                 <th class="px-6 py-3 text-center text-xs font-semibold uppercase text-slate-500">
                   Acciones
                 </th>
@@ -404,7 +415,13 @@ async function eliminarOrden(orden: OrdenServicio): Promise<void> {
                   <PrioridadBadge :prioridad="orden.prioridad" />
                 </td>
                 <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
-                  {{ orden.valor_total }}
+                  {{ formatearMoneda(orden.valor_total) }}
+                </td>
+                <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                  {{ formatearPorcentaje(orden.porcentaje_descuento) }}
+                </td>
+                <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                  {{ formatearFecha(String(orden.fecha_solicitud)) }}
                 </td>
                 <td class="whitespace-nowrap px-6 py-4">
                   <div class="flex items-center justify-center gap-3">

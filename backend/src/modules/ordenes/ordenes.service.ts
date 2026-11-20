@@ -132,4 +132,22 @@ export class OrdenesService {
     // Guarda los cambios y retorna la orden actualizada.
     return this.ordenesRepository.save(orden);
   }
+
+
+  // Elimina lógicamente una orden de servicio.
+  async eliminar(id: number) {
+    // Verifica que la orden exista y permanezca activa.
+    const orden = await this.consultarPorId(id);
+
+    // Cambia el estado de la orden a inactivo.
+    orden.activo = false;
+
+    // Guarda el cambio sin eliminar físicamente el registro.
+    await this.ordenesRepository.save(orden);
+
+    // Retorna una confirmación de la operación.
+    return {
+      message: `La orden ${id} fue eliminada correctamente.`,
+    };
+  }
 }

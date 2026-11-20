@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Delete,
   Query,
 } from '@nestjs/common';
 import {
@@ -73,5 +74,15 @@ export class OrdenesController {
     @Body() dto: ActualizarOrdenDto,
   ) {
     return this.ordenesService.actualizar(id, dto);
+  }
+
+    // Elimina lógicamente una orden mediante su identificador.
+  @Delete(':id')
+  @ApiOperation({ summary: 'Eliminar una orden de servicio' })
+  @ApiParam({ name: 'id', type: Number, example: 1 })
+  @ApiResponse({ status: 200, description: 'Orden eliminada correctamente.' })
+  @ApiResponse({ status: 404, description: 'Orden no encontrada o ya eliminada.' })
+  eliminar(@Param('id', ParseIntPipe) id: number) {
+    return this.ordenesService.eliminar(id);
   }
 }

@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import {
@@ -15,6 +16,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CrearOrdenDto } from './dto/crear-orden.dto';
+import { ActualizarOrdenDto } from './dto/actualizar-orden.dto';
 import { ConsultarOrdenesDto } from './dto/consultar-ordenes.dto';
 import { OrdenesService } from './ordenes.service';
 
@@ -55,5 +57,21 @@ export class OrdenesController {
   @ApiResponse({ status: 409, description: 'El código de orden ya existe.' })
   crear(@Body() dto: CrearOrdenDto) {
     return this.ordenesService.crear(dto);
+  }
+
+
+  // Actualiza los campos enviados de una orden existente.
+  @Put(':id')
+  @ApiOperation({ summary: 'Actualizar una orden de servicio' })
+  @ApiParam({ name: 'id', type: Number, example: 1 })
+  @ApiResponse({ status: 200, description: 'Orden actualizada correctamente.' })
+  @ApiResponse({ status: 400, description: 'Los datos enviados no son válidos.' })
+  @ApiResponse({ status: 404, description: 'Orden no encontrada.' })
+  @ApiResponse({ status: 409, description: 'El código de orden ya existe.' })
+  actualizar(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ActualizarOrdenDto,
+  ) {
+    return this.ordenesService.actualizar(id, dto);
   }
 }

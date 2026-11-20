@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CrearOrdenDto } from './dto/crear-orden.dto';
+import { ActualizarOrdenDto } from './dto/actualizar-orden.dto';
 import { ConsultarOrdenesDto } from './dto/consultar-ordenes.dto';
 import { OrdenServicio } from './entities/orden-servicio.entity';
 
@@ -103,5 +104,32 @@ export class OrdenesService {
 
     // Guarda la nueva orden y retorna el registro creado.
     return this.ordenesRepository.save(nuevaOrden);
+  }
+
+
+  // Actualiza parcialmente una orden de servicio existente.
+  async actualizar(id: number, dto: ActualizarOrdenDto) {
+    // Verifica que la orden exista y permanezca activa.
+    const orden = await this.consultarPorId(id);
+
+    // Comprueba si el nuevo código pertenece a otra orden.
+    if (dto.codigo_orden && dto.codigo_orden !== orden.codigo_orden) {
+      const ordenExistente = await this.ordenesRepository.findOne({
+        where: { codigo_orden: dto.codigo_orden },
+      });
+
+      // Evita asignar un código que ya está registrado.
+      if (ordenExistente) {
+        throw new ConflictException(
+          `Ya existe una orden con el código ${dto.codigo_orden}.`,
+        );
+      }
+    }
+
+    // Aplica únicamente los campos enviados en la solicitud.
+    Object.assign(orden, dto);
+
+    // Guarda los cambios y retorna la orden actualizada.
+    return this.ordenesRepository.save(orden);
   }
 }

@@ -4,6 +4,10 @@ import AppHeader from '@/components/layout/AppHeader.vue'
 import { useOrdenes } from '@/composables/useOrdenes'
 import EstadoBadge from '@/components/ordenes/EstadoBadge.vue'
 import PrioridadBadge from '@/components/ordenes/PrioridadBadge.vue'
+import { ref } from 'vue'
+import OrdenForm from '@/components/ordenes/OrdenForm.vue'
+import { ordenesService } from '@/services/ordenes.service'
+import type { CrearOrdenDto } from '@/interfaces/orden-servicio.interface'
 
 // Inicializa la lógica de consulta de órdenes.
 const {
@@ -33,11 +37,19 @@ const totalCompletadas = computed(
   () => ordenes.value.filter((orden) => orden.estado === 'Completada').length,
 )
 
+// Controla la visibilidad del formulario de creación.
+const mostrarFormulario = ref(false)
+
+// Controla el estado de envío de la nueva orden.
+const guardandoOrden = ref(false)
+
+// Almacena los mensajes de resultado de la operación.
+const mensajeExito = ref('')
+
 // Consulta los registros cuando se carga la pantalla.
 onMounted(() => {
   void cargarOrdenes()
 })
-
 
 // Actualiza la cantidad de registros ingresada por el usuario.
 async function actualizarLimite(event: Event): Promise<void> {
@@ -48,6 +60,37 @@ async function actualizarLimite(event: Event): Promise<void> {
   // Restaura el último valor válido si la entrada fue incorrecta.
   input.value = String(filtros.value.limit)
 }
+
+// Crea una orden y actualiza la lista después de guardarla.
+const crearOrden = async (datos: CrearOrdenDto) => {
+  guardandoOrden.value = true
+  mensajeExito.value = ''
+  try {
+    await ordenesService.crear(datos)
+    mostrarFormulario.value = false
+    await limpiarFiltros()
+    mensajeExito.value = 'La orden se creó correctamente.'
+    } catch (error: unknown) {
+    let mensaje = 'No fue posible crear la orden.'
+
+    if (error instanceof Error && 'response' in error) {
+      const respuesta = error.response as {
+        data?: { message?: string | string[] }
+      }
+
+      const mensajeRespuesta = respuesta.data?.message
+
+      mensaje = Array.isArray(mensajeRespuesta)
+        ? mensajeRespuesta.join(', ')
+        : mensajeRespuesta || mensaje
+    }
+
+    // Muestra los errores del backend en una alerta emergente.
+    window.alert(mensaje)
+  } finally {
+    guardandoOrden.value = false
+  }
+}
 </script>
 
 <template>
@@ -55,7 +98,7 @@ async function actualizarLimite(event: Event): Promise<void> {
     <AppHeader />
 
     <main class="mx-auto max-w-7xl px-6 py-8">
-      <!-- Título y descripción del módulo. -->
+      <!-- Encabezado del módulo y acción de creación. -->
       <section class="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <p class="text-sm font-medium text-blue-600">
@@ -68,7 +111,25 @@ async function actualizarLimite(event: Event): Promise<void> {
             Consulta y administra las órdenes de servicio registradas.
           </p>
         </div>
+      
+        <button
+          type="button"
+          class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+          @click="mostrarFormulario = true"
+        >
+          <span class="text-lg">+</span>
+          Nueva orden
+        </button>
       </section>
+
+      <!-- Mensaje de creación exitosa. -->
+      <div
+        v-if="mensajeExito"
+        role="status"
+        class="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+      >
+        {{ mensajeExito }}
+      </div>
 
       <!-- Indicadores generales del listado actual. -->
       <section class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -312,5 +373,53 @@ async function actualizarLimite(event: Event): Promise<void> {
         </div>
       </section>
     </main>
+    <!-- Modal para registrar una nueva orden de servicio. -->
+    <Teleport to="body">
+      <div
+        v-if="mostrarFormulario"
+        class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/50 p-4"
+        @click.self="mostrarFormulario = false"
+      >
+        <section
+          class="my-auto w-full max-w-3xl rounded-2xl bg-white shadow-2xl"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="titulo-formulario"
+        >
+          <header class="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+            <div>
+              <h3
+                id="titulo-formulario"
+                class="text-xl font-bold text-slate-900"
+              >
+                Nueva orden de servicio
+              </h3>
+            
+              <p class="mt-1 text-sm text-slate-500">
+                Completa la información para registrar una nueva orden.
+              </p>
+            </div>
+          
+            <button
+              type="button"
+              aria-label="Cerrar formulario"
+              :disabled="guardandoOrden"
+              class="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+              @click="mostrarFormulario = false"
+            >
+              ✕
+            </button>
+          </header>
+        
+          <div class="max-h-[75vh] overflow-y-auto p-6">
+            <OrdenForm
+              :cargando="guardandoOrden"
+              @submit="crearOrden"
+              @cancel="mostrarFormulario = false"
+            />
+          </div>
+        </section>
+      </div>
+    </Teleport>
   </div>
 </template>

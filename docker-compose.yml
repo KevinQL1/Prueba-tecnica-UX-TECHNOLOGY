@@ -1,0 +1,33 @@
+
+services:
+  # Contenedor encargado de ejecutar MySQL 8.
+  mysql:
+    image: mysql:8.0
+    container_name: ux-mysql
+    restart: unless-stopped
+
+    # Configuración inicial obtenida desde las variables de entorno.
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+
+    # Permite configurar el puerto desde el archivo .env.
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+
+    # Inicializa la base de datos y conserva los datos.
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+    # Comprueba que MySQL esté listo para recibir conexiones.
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+# Mantiene los datos aunque se reinicie o elimine el contenedor.
+volumes:
+  mysql_data:

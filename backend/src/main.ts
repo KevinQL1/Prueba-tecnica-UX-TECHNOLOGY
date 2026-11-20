@@ -1,5 +1,6 @@
 
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -7,6 +8,9 @@ import { AppModule } from './app.module';
 // Inicializa la aplicación y configura el servidor HTTP.
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Obtiene las variables de configuración de la aplicación.
+  const configService = app.get(ConfigService);
 
   // Agrupa todos los endpoints bajo el prefijo /api.
   app.setGlobalPrefix('api');
@@ -41,8 +45,12 @@ async function bootstrap() {
   useGlobalPrefix: true,
   });
 
-  // Inicia el servidor utilizando el puerto configurado o el 3000 por defecto.
-  await app.listen(process.env.PORT ?? 3000);
+  // Inicia el servidor utilizando el puerto configurado.
+    const port = Number(configService.getOrThrow<string>('API_PORT'));
+
+  // Inicia el servidor HTTP.
+  await app.listen(port);
+
 }
 
 void bootstrap();

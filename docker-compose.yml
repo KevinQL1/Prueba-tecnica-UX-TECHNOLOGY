@@ -1,33 +1,90 @@
 
 services:
-  # Contenedor encargado de ejecutar MySQL 8.
+  # Base de datos MySQL.
   mysql:
     image: mysql:8.0
     container_name: ux-mysql
     restart: unless-stopped
 
-    # Configuración inicial obtenida desde las variables de entorno.
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
 
-    # Permite configurar el puerto desde el archivo .env.
     ports:
       - "${DB_PORT}:${DB_PORT}"
 
-    # Inicializa la base de datos y conserva los datos.
     volumes:
       - mysql_data:/var/lib/mysql
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
-    # Comprueba que MySQL esté listo para recibir conexiones.
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -p$${MYSQL_ROOT_PASSWORD} --silent"
+        ]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 30s
 
-# Mantiene los datos aunque se reinicie o elimine el contenedor.
+    networks:
+      - ux-network
+
+  # API desarrollada con NestJS.
+  backend:
+    container_name: ux-backend
+    restart: unless-stopped
+
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    environment:
+      NODE_ENV: production
+      API_PORT: ${API_PORT}
+      FRONTEND_PORT: ${FRONTEND_PORT}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      DB_DATABASE: ${DB_DATABASE}
+
+    ports:
+      - "${API_PORT}:${API_PORT}"
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    networks:
+      - ux-network
+
+  # Aplicación Vue servida mediante Nginx.
+  frontend:
+    container_name: ux-frontend
+    restart: unless-stopped
+
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+
+    ports:
+      - "${FRONTEND_PORT}:80"
+
+    depends_on:
+      - backend
+
+    networks:
+      - ux-network
+
+# Red interna de comunicación.
+networks:
+  ux-network:
+    driver: bridge
+
+# Persistencia de los datos de MySQL.
 volumes:
   mysql_data:

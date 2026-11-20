@@ -152,7 +152,8 @@ function configurarComposable(
 
   const cargarOrdenes = vi.fn().mockResolvedValue(undefined)
   const cambiarPagina = vi.fn().mockResolvedValue(undefined)
-  const cambiarLimite = vi.fn().mockResolvedValue(undefined)
+  // Simula un cambio de límite válido por defecto.
+  const cambiarLimite = vi.fn().mockResolvedValue(true)
   const aplicarFiltros = vi.fn().mockResolvedValue(undefined)
   const limpiarFiltros = vi.fn().mockResolvedValue(undefined)
 
@@ -206,6 +207,19 @@ function obtenerBoton(wrapper: ReturnType<typeof montarVista>, texto: string) {
   return boton
 }
 
+// Comprueba que se muestre una notificación con el título y mensaje esperados.
+function esperarNotificacion(
+  wrapper: ReturnType<typeof montarVista>,
+  titulo: string,
+  mensaje: string,
+): void {
+  const notificacion = wrapper.find('[role="alert"]')
+
+  expect(notificacion.exists()).toBe(true)
+  expect(notificacion.text()).toContain(titulo)
+  expect(notificacion.text()).toContain(mensaje)
+}
+
 async function abrirFormulario(wrapper: ReturnType<typeof montarVista>) {
   await obtenerBoton(wrapper, 'Nueva orden').trigger('click')
   await flushPromises()
@@ -221,7 +235,7 @@ describe('OrdenesView.vue', () => {
     vi.mocked(ordenesService.actualizar).mockResolvedValue({} as never)
     vi.mocked(ordenesService.eliminar).mockResolvedValue({} as never)
 
-    vi.spyOn(window, 'alert').mockImplementation(() => {})
+    // Simula la confirmación de eliminación de órdenes.
     vi.spyOn(window, 'confirm').mockReturnValue(true)
   })
 
@@ -505,7 +519,9 @@ describe('OrdenesView.vue', () => {
       await wrapper.find('[data-testid="enviar-formulario"]').trigger('click')
       await flushPromises()
 
-      expect(window.alert).toHaveBeenCalledWith(
+      esperarNotificacion(
+        wrapper,
+        'Error al crear la orden',
         'No fue posible crear la orden.',
       )
     })
@@ -527,7 +543,9 @@ describe('OrdenesView.vue', () => {
       await wrapper.find('[data-testid="enviar-formulario"]').trigger('click')
       await flushPromises()
 
-      expect(window.alert).toHaveBeenCalledWith(
+      esperarNotificacion(
+        wrapper,
+        'Error al crear la orden',
         'Código inválido, Cliente inválido',
       )
     })
@@ -549,7 +567,11 @@ describe('OrdenesView.vue', () => {
       await wrapper.find('[data-testid="enviar-formulario"]').trigger('click')
       await flushPromises()
 
-      expect(window.alert).toHaveBeenCalledWith('Código duplicado')
+      esperarNotificacion(
+        wrapper,
+        'Error al crear la orden',
+        'Código duplicado',
+      )
     })
   })
 
@@ -602,7 +624,9 @@ describe('OrdenesView.vue', () => {
       await wrapper.find('[data-testid="enviar-formulario"]').trigger('click')
       await flushPromises()
 
-      expect(window.alert).toHaveBeenCalledWith(
+      esperarNotificacion(
+        wrapper,
+        'Error al actualizar la orden',
         'No fue posible actualizar la orden.',
       )
     })
@@ -624,7 +648,9 @@ describe('OrdenesView.vue', () => {
       await wrapper.find('[data-testid="enviar-formulario"]').trigger('click')
       await flushPromises()
 
-      expect(window.alert).toHaveBeenCalledWith(
+      esperarNotificacion(
+        wrapper,
+        'Error al actualizar la orden',
         'Orden inválida, Datos incorrectos',
       )
     })
@@ -664,7 +690,9 @@ describe('OrdenesView.vue', () => {
       await obtenerBoton(wrapper, 'Eliminar').trigger('click')
       await flushPromises()
 
-      expect(window.alert).toHaveBeenCalledWith(
+      esperarNotificacion(
+        wrapper,
+        'Error al eliminar la orden',
         'No fue posible eliminar la orden.',
       )
     })
@@ -685,7 +713,9 @@ describe('OrdenesView.vue', () => {
       await obtenerBoton(wrapper, 'Eliminar').trigger('click')
       await flushPromises()
 
-      expect(window.alert).toHaveBeenCalledWith(
+      esperarNotificacion(
+        wrapper,
+        'Error al eliminar la orden',
         'No se puede eliminar, Orden relacionada',
       )
     })

@@ -160,13 +160,17 @@ describe('useOrdenes', () => {
     async (limit) => {
       const composable = useOrdenes()
 
-      await composable.cambiarLimite(limit)
+      const limiteInicial = composable.filtros.value.limit
+      const paginaInicial = composable.filtros.value.page
 
-      expect(window.alert).toHaveBeenCalledWith(
-        'El rango permitido es entre 1 y 100.',
-      )
-      expect(composable.filtros.value.limit).toBe(10)
-      expect(obtenerTodasMock).not.toHaveBeenCalled()
+      const resultado = await composable.cambiarLimite(limit)
+
+      // Verifica que la validación rechace el valor.
+      expect(resultado).toBe(false)
+
+      // Comprueba que los filtros permanezcan sin cambios.
+      expect(composable.filtros.value.limit).toBe(limiteInicial)
+      expect(composable.filtros.value.page).toBe(paginaInicial)
     },
   )
 

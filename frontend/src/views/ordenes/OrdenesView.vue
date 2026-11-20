@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import { useOrdenes } from '@/composables/useOrdenes'
 import EstadoBadge from '@/components/ordenes/EstadoBadge.vue'
 import PrioridadBadge from '@/components/ordenes/PrioridadBadge.vue'
-import { ref } from 'vue'
 import OrdenForm from '@/components/ordenes/OrdenForm.vue'
 import { ordenesService } from '@/services/ordenes.service'
 import type { CrearOrdenDto, OrdenServicio } from '@/interfaces/orden-servicio.interface'
+import AppNotification from '@/components/layout/AppNotification.vue'
 import {
   formatearMoneda,
   formatearPorcentaje,
@@ -48,8 +48,12 @@ const mostrarFormulario = ref(false)
 // Controla el estado de envío de la nueva orden.
 const guardandoOrden = ref(false)
 
-// Almacena los mensajes de resultado de la operación.
-const mensajeExito = ref('')
+// Almacena la notificación que se muestra al usuario.
+const notificacion = ref<{
+  tipo: TipoNotificacion
+  titulo: string
+  mensaje: string
+} | null>(null)
 
 // Almacena la orden seleccionada para editar.
 const ordenSeleccionada = ref<OrdenServicio | null>(null)
@@ -66,7 +70,16 @@ onMounted(() => {
 async function actualizarLimite(event: Event): Promise<void> {
   const input = event.target as HTMLInputElement
 
-  await cambiarLimite(Number(input.value))
+  const resultado = await cambiarLimite(Number(input.value))
+
+  // Informa cuando el límite ingresado no cumple las validaciones.
+  if (!resultado) {
+    mostrarNotificacion(
+      'warning',
+      'Límite inválido',
+      'El rango permitido es entre 1 y 100.',
+    )
+  }
 
   // Restaura el último valor válido si la entrada fue incorrecta.
   input.value = String(filtros.value.limit)
@@ -75,12 +88,15 @@ async function actualizarLimite(event: Event): Promise<void> {
 // Crea una orden y actualiza la lista después de guardarla.
 const crearOrden = async (datos: CrearOrdenDto) => {
   guardandoOrden.value = true
-  mensajeExito.value = ''
   try {
     await ordenesService.crear(datos)
     mostrarFormulario.value = false
     await limpiarFiltros()
-    mensajeExito.value = 'La orden se creó correctamente.'
+    mostrarNotificacion(
+      'success',
+      'Orden creada',
+      'La orden se creó correctamente.',
+    )
     } catch (error: unknown) {
     let mensaje = 'No fue posible crear la orden.'
 
@@ -97,7 +113,7 @@ const crearOrden = async (datos: CrearOrdenDto) => {
     }
 
     // Muestra los errores del backend en una alerta emergente.
-    window.alert(mensaje)
+    mostrarNotificacion('error', 'Error al crear la orden', mensaje)
   } finally {
     guardandoOrden.value = false
   }
@@ -107,7 +123,6 @@ const crearOrden = async (datos: CrearOrdenDto) => {
 function abrirEdicion(orden: OrdenServicio): void {
   ordenSeleccionada.value = orden
   editandoOrden.value = true
-  mensajeExito.value = ''
   mostrarFormulario.value = true
 }
 
@@ -126,7 +141,11 @@ const actualizarOrden = async (datos: CrearOrdenDto) => {
 
     await cargarOrdenes()
 
-    mensajeExito.value = 'La orden se actualizó correctamente.'
+    mostrarNotificacion(
+      'success',
+      'Orden actualizada',
+      'La orden se actualizó correctamente.',
+    )
   } catch (error: unknown) {
     let mensaje = 'No fue posible actualizar la orden.'
 
@@ -142,7 +161,7 @@ const actualizarOrden = async (datos: CrearOrdenDto) => {
         : mensajeRespuesta || mensaje
     }
 
-    window.alert(mensaje)
+    mostrarNotificacion('error', 'Error al actualizar la orden', mensaje)
   } finally {
     guardandoOrden.value = false
   }
@@ -170,7 +189,11 @@ async function eliminarOrden(orden: OrdenServicio): Promise<void> {
 
     await cargarOrdenes()
 
-    mensajeExito.value = 'La orden se eliminó correctamente.'
+    mostrarNotificacion(
+      'success',
+      'Orden eliminada',
+      'La orden se eliminó correctamente.',
+    )
   } catch (error: unknown) {
     let mensaje = 'No fue posible eliminar la orden.'
 
@@ -186,8 +209,22 @@ async function eliminarOrden(orden: OrdenServicio): Promise<void> {
         : mensajeRespuesta || mensaje
     }
 
-    window.alert(mensaje)
+    mostrarNotificacion('error', 'Error al eliminar la orden', mensaje)
   }
+}
+
+// Muestra una notificación con su tipo, título y mensaje.
+function mostrarNotificacion(
+  tipo: TipoNotificacion,
+  titulo: string,
+  mensaje: string,
+): void {
+  notificacion.value = { tipo, titulo, mensaje }
+}
+
+// Cierra la notificación actual.
+function cerrarNotificacion(): void {
+  notificacion.value = null
 }
 </script>
 
@@ -220,14 +257,22 @@ async function eliminarOrden(orden: OrdenServicio): Promise<void> {
         </button>
       </section>
 
-      <!-- Mensaje de creación exitosa. -->
-      <div
-        v-if="mensajeExito"
-        role="status"
-        class="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
-      >
-        {{ mensajeExito }}
-      </div>
+      <!-- Muestra las notificaciones de las operaciones del módulo. -->
+      <Teleport to="body">
+        <div
+          v-if="notificacion"
+          class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/20 p-4"
+        >
+          <div class="w-full max-w-md">
+            <AppNotification
+              :tipo="notificacion.tipo"
+              :titulo="notificacion.titulo"
+              :mensaje="notificacion.mensaje"
+              @close="cerrarNotificacion"
+            />
+          </div>
+        </div>
+      </Teleport>
 
       <!-- Indicadores generales del listado actual. -->
       <section class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

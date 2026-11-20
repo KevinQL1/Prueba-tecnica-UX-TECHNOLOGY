@@ -68,17 +68,18 @@ export function useOrdenes() {
   }
 
   // Cambia la cantidad de registros por página validando el rango permitido.
-  async function cambiarLimite(limit: number): Promise<void> {
+  async function cambiarLimite(limit: number): Promise<boolean> {
     // Valida que el valor sea un entero entre 1 y 100.
     if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
-      window.alert('El rango permitido es entre 1 y 100.')
-      return
+    return false
     }
 
     filtros.value.limit = limit
     filtros.value.page = 1
-
+    
     await cargarOrdenes()
+    
+    return true
   }
 
 

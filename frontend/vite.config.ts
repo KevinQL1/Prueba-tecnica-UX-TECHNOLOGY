@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
 
     // Configura el puerto del frontend desde el .env.
     server: {
-      port: Number(env.FRONTEND_PORT) || 5173,
+      port: Number(env.FRONTEND_PORT),
     },
 
     resolve: {

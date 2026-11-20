@@ -1,7 +1,11 @@
-
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CrearOrdenDto } from './dto/crear-orden.dto';
 import { ConsultarOrdenesDto } from './dto/consultar-ordenes.dto';
 import { OrdenServicio } from './entities/orden-servicio.entity';
 
@@ -75,5 +79,29 @@ export class OrdenesService {
 
     // Retorna la orden encontrada.
     return orden;
+  }
+
+  // Crea una nueva orden de servicio.
+  async crear(dto: CrearOrdenDto) {
+    // Comprueba que el código de la orden no esté registrado.
+    const ordenExistente = await this.ordenesRepository.findOne({
+      where: { codigo_orden: dto.codigo_orden },
+    });
+
+    // Evita registrar dos órdenes con el mismo código.
+    if (ordenExistente) {
+      throw new ConflictException(
+        `Ya existe una orden con el código ${dto.codigo_orden}.`,
+      );
+    }
+
+    // Construye la entidad con los datos recibidos.
+    const nuevaOrden = this.ordenesRepository.create({
+      ...dto,
+      activo: true,
+    });
+
+    // Guarda la nueva orden y retorna el registro creado.
+    return this.ordenesRepository.save(nuevaOrden);
   }
 }

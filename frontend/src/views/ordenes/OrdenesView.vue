@@ -151,6 +151,39 @@ function cerrarFormulario(): void {
   ordenSeleccionada.value = null
   editandoOrden.value = false
 }
+
+// Elimina una orden después de confirmar la acción.
+async function eliminarOrden(orden: OrdenServicio): Promise<void> {
+  const confirmar = window.confirm(
+    `¿Estás seguro de eliminar la orden ${orden.codigo_orden}?`,
+  )
+
+  if (!confirmar) return
+
+  try {
+    await ordenesService.eliminar(orden.id)
+
+    await cargarOrdenes()
+
+    mensajeExito.value = 'La orden se eliminó correctamente.'
+  } catch (error: unknown) {
+    let mensaje = 'No fue posible eliminar la orden.'
+
+    if (error instanceof Error && 'response' in error) {
+      const respuesta = error.response as {
+        data?: { message?: string | string[] }
+      }
+
+      const mensajeRespuesta = respuesta.data?.message
+
+      mensaje = Array.isArray(mensajeRespuesta)
+        ? mensajeRespuesta.join(', ')
+        : mensajeRespuesta || mensaje
+    }
+
+    window.alert(mensaje)
+  }
+}
 </script>
 
 <template>
@@ -346,7 +379,7 @@ function cerrarFormulario(): void {
                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">
                   Valor total
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">
+                <th class="px-6 py-3 text-center text-xs font-semibold uppercase text-slate-500">
                   Acciones
                 </th>
               </tr>
@@ -374,13 +407,23 @@ function cerrarFormulario(): void {
                   {{ orden.valor_total }}
                 </td>
                 <td class="whitespace-nowrap px-6 py-4">
-                  <button
-                    type="button"
-                    class="rounded-lg border border-blue-200 px-3 py-2 text-sm font-medium text-blue-700 transition hover:bg-blue-50"
-                    @click="abrirEdicion(orden)"
-                  >
-                    Editar
-                  </button>
+                  <div class="flex items-center justify-center gap-3">
+                    <button
+                      type="button"
+                      class="rounded-lg border border-blue-200 px-4 py-2 text-sm font-medium text-blue-700 transition hover:bg-blue-50"
+                      @click="abrirEdicion(orden)"
+                    >
+                      Editar
+                    </button>
+                  
+                    <button
+                      type="button"
+                      class="rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-700 transition hover:bg-red-50"
+                      @click="eliminarOrden(orden)"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>

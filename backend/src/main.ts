@@ -1,4 +1,3 @@
-
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -11,6 +10,14 @@ async function bootstrap() {
 
   // Obtiene las variables de configuración de la aplicación.
   const configService = app.get(ConfigService);
+
+  // Obtiene el puerto configurado para el frontend.
+  const frontendPort = configService.getOrThrow<string>('FRONTEND_PORT')
+
+  // Habilita las peticiones desde el frontend configurado.
+  app.enableCors({
+    origin: `http://localhost:${frontendPort}`,
+  })
 
   // Agrupa todos los endpoints bajo el prefijo /api.
   app.setGlobalPrefix('api');
@@ -37,7 +44,7 @@ async function bootstrap() {
     .addTag('Órdenes')
     .build();
 
-     // Genera el documento OpenAPI a partir de los controladores y DTO.
+  // Genera el documento OpenAPI a partir de los controladores y DTO.
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
 
   // Publica la documentación en /api/docs.
@@ -46,7 +53,7 @@ async function bootstrap() {
   });
 
   // Inicia el servidor utilizando el puerto configurado.
-    const port = Number(configService.getOrThrow<string>('API_PORT'));
+  const port = Number(configService.getOrThrow<string>('API_PORT'));
 
   // Inicia el servidor HTTP.
   await app.listen(port);

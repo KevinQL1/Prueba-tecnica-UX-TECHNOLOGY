@@ -11,6 +11,8 @@ const {
   filtros,
   paginacion,
   cargarOrdenes,
+  cambiarPagina,
+  cambiarLimite,
   aplicarFiltros,
   limpiarFiltros,
 } = useOrdenes()
@@ -33,6 +35,17 @@ const totalCompletadas = computed(
 onMounted(() => {
   void cargarOrdenes()
 })
+
+
+// Actualiza la cantidad de registros ingresada por el usuario.
+async function actualizarLimite(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement
+
+  await cambiarLimite(Number(input.value))
+
+  // Restaura el último valor válido si la entrada fue incorrecta.
+  input.value = String(filtros.value.limit)
+}
 </script>
 
 <template>
@@ -239,11 +252,61 @@ onMounted(() => {
           </table>
         </div>
 
+        <!-- Controles de paginación del listado de órdenes. -->
         <div
           v-if="!cargando && !error && paginacion.total > 0"
-          class="border-t border-slate-200 px-6 py-4 text-sm text-slate-500"
+          class="flex flex-col gap-4 border-t border-slate-200 px-6 py-4 sm:flex-row sm:items-center sm:justify-between"
         >
-          Mostrando {{ ordenes.length }} registros de {{ paginacion.total }} órdenes.
+          <!-- Información de los registros mostrados. -->
+          <div class="text-sm text-slate-500">
+            Página {{ paginacion.page }} de {{ paginacion.totalPages }}
+            <span class="mx-1">·</span>
+            {{ paginacion.total }} registros en total
+          </div>
+        
+          <div class="flex flex-wrap items-center gap-3">
+            <!-- Permite definir la cantidad de registros por página. -->
+            <div class="flex items-center gap-2">
+              <label
+                for="limite-registros"
+                class="whitespace-nowrap text-sm text-slate-600"
+              >
+                Registros por página:
+              </label>
+            
+              <input
+                id="limite-registros"
+                type="number"
+                min="1"
+                max="100"
+                step="1"
+                :value="filtros.limit"
+                class="w-20 rounded-lg border border-slate-300 bg-white px-3 py-2 text-center text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                @change="actualizarLimite"
+              />
+            </div>
+
+            <!-- Navegación entre páginas. -->
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                :disabled="paginacion.page <= 1"
+                class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+                @click="cambiarPagina(paginacion.page - 1)"
+              >
+                Anterior
+              </button>
+            
+              <button
+                type="button"
+                :disabled="paginacion.page >= paginacion.totalPages"
+                class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+                @click="cambiarPagina(paginacion.page + 1)"
+              >
+                Siguiente
+              </button>
+            </div>
+          </div>
         </div>
       </section>
     </main>
